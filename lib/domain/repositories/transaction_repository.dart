@@ -1,5 +1,4 @@
 import '../entities/transaction_entity.dart';
-
 abstract class TransactionRepository {
   List<TransactionEntity> getAllTransactions();
   Future<void> addTransaction(TransactionEntity e);

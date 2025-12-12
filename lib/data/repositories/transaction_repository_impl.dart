@@ -21,7 +21,6 @@ class TransactionRepositoryImpl implements TransactionRepository {
     await localDb.delete(id);
   }
 
-  // ADD THIS:
   @override
   Future<void> updateTransaction(TransactionEntity e) async {
     await localDb.update(TransactionModel.fromEntity(e));

@@ -14,7 +14,6 @@ class TransactionLocalDb {
     await box.delete(id);
   }
 
-  // ADD THIS:
   Future<void> update(TransactionModel model) async {
     await box.put(model.transactionId, model);
   }

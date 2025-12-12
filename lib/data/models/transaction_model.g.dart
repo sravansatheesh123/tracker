@@ -1,5 +1,3 @@
-// MANUAL HIVE ADAPTER - No build_runner needed
-
 import 'package:hive/hive.dart';
 import 'transaction_model.dart';
 

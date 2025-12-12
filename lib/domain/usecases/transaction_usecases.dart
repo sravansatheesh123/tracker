@@ -14,7 +14,6 @@ class TransactionUsecases {
   Future<void> delete(String id) =>
       repository.deleteTransaction(id);
 
-  // ADD THIS:
   Future<void> update(TransactionEntity entity) =>
       repository.updateTransaction(entity);
 }

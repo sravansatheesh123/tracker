@@ -21,14 +21,20 @@ class DashboardScreen extends StatelessWidget {
       backgroundColor: isDark ? Colors.black : Colors.grey[100],
 
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           "Dashboard",
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
-        backgroundColor: isDark ? Colors.grey[900] : const Color(0xFF0A1D37),
+        backgroundColor: isDark ? Colors.grey[900] : Color(0xFF0A1D37),
         iconTheme: const IconThemeData(color: Colors.white),
+
         actions: [
+          IconButton(
+            icon: const Icon(Icons.account_balance_wallet, color: Colors.white),
+            onPressed: () => Navigator.pushNamed(context, "/budget"),
+          ),
+
           IconButton(
             icon: const Icon(Icons.brightness_6, color: Colors.white),
             onPressed: () => context.read<ThemeProvider>().toggleTheme(),
@@ -37,7 +43,7 @@ class DashboardScreen extends StatelessWidget {
       ),
 
       floatingActionButton: FloatingActionButton(
-        backgroundColor: isDark ? Colors.grey[800] : const Color(0xFF0A1D37),
+        backgroundColor: isDark ? Colors.grey[800] : Color(0xFF0A1D37),
         child: const Icon(Icons.add, color: Colors.white),
         onPressed: () => Navigator.pushNamed(context, "/add-transaction"),
       ),
@@ -67,6 +73,7 @@ class DashboardScreen extends StatelessWidget {
                     ),
                     textAlign: TextAlign.center,
                   ),
+
                   const SizedBox(height: 8),
 
                   Text(
@@ -107,7 +114,6 @@ class DashboardScreen extends StatelessWidget {
                 return TransactionTile(
                   transaction: tx,
 
-                  // VIEW
                   onView: () {
                     showDialog(
                       context: context,
@@ -136,7 +142,6 @@ class DashboardScreen extends StatelessWidget {
                     );
                   },
 
-                  // EDIT
                   onEdit: () {
                     Navigator.pushNamed(
                       context,
@@ -145,7 +150,6 @@ class DashboardScreen extends StatelessWidget {
                     );
                   },
 
-                  // DELETE
                   onDelete: () {
                     provider.deleteTransaction(tx.id);
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -156,7 +160,6 @@ class DashboardScreen extends StatelessWidget {
               },
             ),
           ),
-
         ],
       ),
     );
