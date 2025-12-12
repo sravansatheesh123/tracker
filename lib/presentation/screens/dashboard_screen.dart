@@ -101,10 +101,62 @@ class DashboardScreen extends StatelessWidget {
             child: ListView.builder(
               itemCount: provider.transactions.length,
               itemBuilder: (context, index) {
-                return TransactionTile(provider.transactions[index]);
+                final tx = provider.transactions[index];
+                final isDark = Theme.of(context).brightness == Brightness.dark;
+
+                return TransactionTile(
+                  transaction: tx,
+
+                  // VIEW
+                  onView: () {
+                    showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        backgroundColor: isDark ? Colors.grey[900] : Colors.white,
+                        title: Text("Transaction Details",
+                            style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Title: ${tx.title}"),
+                            Text("Amount: ₹${tx.amount}"),
+                            Text("Category: ${tx.category}"),
+                            Text("Type: ${tx.isIncome ? "Income" : "Expense"}"),
+                            Text("Date: ${tx.date}"),
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text("Close"),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+
+                  // EDIT
+                  onEdit: () {
+                    Navigator.pushNamed(
+                      context,
+                      "/edit-transaction",
+                      arguments: tx,
+                    );
+                  },
+
+                  // DELETE
+                  onDelete: () {
+                    provider.deleteTransaction(tx.id);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Deleted ${tx.title}")),
+                    );
+                  },
+                );
               },
             ),
           ),
+
         ],
       ),
     );

@@ -3,8 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tracker/presentation/screens/add_transaction_screen.dart';
 import 'package:tracker/presentation/screens/budget_screen.dart';
+import 'package:tracker/presentation/screens/edit_transaction_screen.dart';
 
 import 'data/models/transaction_model.g.dart';
+import 'domain/entities/transaction_entity.dart';
 import 'presentation/providers/theme_provider.dart';
 import 'presentation/providers/transaction_provider.dart';
 import 'presentation/screens/dashboard_screen.dart';
@@ -42,10 +44,14 @@ class ExpenseApp extends StatelessWidget {
 
             home: const DashboardScreen(),
 
-              routes: {
-                "/add-transaction": (_) => const AddTransactionScreen(),
-                "/budget": (_) => const BudgetScreen(),
-              }
+            routes: {
+              "/add-transaction": (_) => const AddTransactionScreen(),
+              "/edit-transaction": (context) {
+                final tx = ModalRoute.of(context)!.settings.arguments as TransactionEntity;
+                return EditTransactionScreen(transaction: tx);
+              },
+            },
+
           );
 
         },
