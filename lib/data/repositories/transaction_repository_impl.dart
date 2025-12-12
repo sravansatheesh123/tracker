@@ -20,4 +20,10 @@ class TransactionRepositoryImpl implements TransactionRepository {
   Future<void> deleteTransaction(String id) async {
     await localDb.delete(id);
   }
+
+  // ADD THIS:
+  @override
+  Future<void> updateTransaction(TransactionEntity e) async {
+    await localDb.update(TransactionModel.fromEntity(e));
+  }
 }

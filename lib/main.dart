@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tracker/presentation/screens/add_transaction_screen.dart';
+import 'package:tracker/presentation/screens/budget_screen.dart';
 
 import 'data/models/transaction_model.g.dart';
 import 'presentation/providers/theme_provider.dart';
@@ -41,9 +42,10 @@ class ExpenseApp extends StatelessWidget {
 
             home: const DashboardScreen(),
 
-            routes: {
-              "/add-transaction": (_) => const AddTransactionScreen(),
-            },
+              routes: {
+                "/add-transaction": (_) => const AddTransactionScreen(),
+                "/budget": (_) => const BudgetScreen(),
+              }
           );
 
         },

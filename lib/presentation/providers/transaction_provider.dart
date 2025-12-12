@@ -19,7 +19,8 @@ class TransactionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addTransaction(String title, double amount, String category, bool income) async {
+  Future<void> addTransaction(
+      String title, double amount, String category, bool income) async {
     final entity = TransactionEntity(
       id: const Uuid().v4(),
       title: title,
@@ -28,7 +29,27 @@ class TransactionProvider extends ChangeNotifier {
       date: DateTime.now(),
       isIncome: income,
     );
+
     await usecases.add(entity);
+    load();
+  }
+
+  Future<void> updateTransaction(
+      String id,
+      String title,
+      double amount,
+      String category,
+      bool income) async {
+    final updated = TransactionEntity(
+      id: id,
+      title: title,
+      amount: amount,
+      category: category,
+      date: DateTime.now(),
+      isIncome: income,
+    );
+
+    await usecases.update(updated);
     load();
   }
 
@@ -37,9 +58,19 @@ class TransactionProvider extends ChangeNotifier {
     load();
   }
 
+  List<TransactionEntity> get recentTransactions {
+    return transactions.reversed.take(10).toList();
+  }
+
   double get balance {
-    double income = transactions.where((e) => e.isIncome).fold(0, (s, e) => s + e.amount);
-    double expense = transactions.where((e) => !e.isIncome).fold(0, (s, e) => s + e.amount);
+    double income = transactions
+        .where((e) => e.isIncome)
+        .fold(0, (s, e) => s + e.amount);
+
+    double expense = transactions
+        .where((e) => !e.isIncome)
+        .fold(0, (s, e) => s + e.amount);
+
     return income - expense;
   }
 }

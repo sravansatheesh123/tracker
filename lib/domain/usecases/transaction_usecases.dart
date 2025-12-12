@@ -8,7 +8,13 @@ class TransactionUsecases {
 
   List<TransactionEntity> getAll() => repository.getAllTransactions();
 
-  Future<void> add(TransactionEntity entity) => repository.addTransaction(entity);
+  Future<void> add(TransactionEntity entity) =>
+      repository.addTransaction(entity);
 
-  Future<void> delete(String id) => repository.deleteTransaction(id);
+  Future<void> delete(String id) =>
+      repository.deleteTransaction(id);
+
+  // ADD THIS:
+  Future<void> update(TransactionEntity entity) =>
+      repository.updateTransaction(entity);
 }
