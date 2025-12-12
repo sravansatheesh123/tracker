@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../providers/transaction_provider.dart';
 import '../providers/theme_provider.dart';
 import '../widgets/transaction_tile.dart';
+import '../widgets/expense_pie_chart.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<TransactionProvider>(context);
+    final provider = context.watch<TransactionProvider>();
 
     final size = MediaQuery.of(context).size;
     final padding = size.width * 0.04;
@@ -21,20 +23,31 @@ class DashboardScreen extends StatelessWidget {
       backgroundColor: isDark ? Colors.black : Colors.grey[100],
 
       appBar: AppBar(
-        title: const Text(
-          "Dashboard",
-          style: TextStyle(color: Colors.white),
-        ),
+        title: const Text("Dashboard", style: TextStyle(color: Colors.white)),
         centerTitle: true,
-        backgroundColor: isDark ? Colors.grey[900] : Color(0xFF0A1D37),
+        backgroundColor: isDark ? Colors.grey[900] : const Color(0xFF0A1D37),
         iconTheme: const IconThemeData(color: Colors.white),
-
         actions: [
           IconButton(
-            icon: const Icon(Icons.account_balance_wallet, color: Colors.white),
-            onPressed: () => Navigator.pushNamed(context, "/budget"),
+            icon: const Icon(Icons.download, color: Colors.white),
+            onPressed: () async {
+              final path = await context.read<TransactionProvider>().exportCSV();
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("CSV saved at: $path")),
+              );
+            },
           ),
 
+          IconButton(
+            icon: const Icon(Icons.download, color: Colors.white),
+            onPressed: () async {
+              final path = await context.read<TransactionProvider>().exportCSV();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("CSV exported to: $path")),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.brightness_6, color: Colors.white),
             onPressed: () => context.read<ThemeProvider>().toggleTheme(),
@@ -43,7 +56,7 @@ class DashboardScreen extends StatelessWidget {
       ),
 
       floatingActionButton: FloatingActionButton(
-        backgroundColor: isDark ? Colors.grey[800] : Color(0xFF0A1D37),
+        backgroundColor: isDark ? Colors.grey[800] : const Color(0xFF0A1D37),
         child: const Icon(Icons.add, color: Colors.white),
         onPressed: () => Navigator.pushNamed(context, "/add-transaction"),
       ),
@@ -55,7 +68,7 @@ class DashboardScreen extends StatelessWidget {
             margin: EdgeInsets.all(padding),
             elevation: isDark ? 0 : 2,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Padding(
               padding: EdgeInsets.symmetric(
@@ -91,6 +104,13 @@ class DashboardScreen extends StatelessWidget {
               ),
             ),
           ),
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: padding,
+              vertical: padding * 0.5,
+            ),
+            child: ExpensePieChart(transactions: provider.transactions),
+          ),
 
           Padding(
             padding: EdgeInsets.all(padding),
@@ -103,13 +123,11 @@ class DashboardScreen extends StatelessWidget {
               ),
             ),
           ),
-
           Expanded(
             child: ListView.builder(
               itemCount: provider.transactions.length,
               itemBuilder: (context, index) {
                 final tx = provider.transactions[index];
-                final isDark = Theme.of(context).brightness == Brightness.dark;
 
                 return TransactionTile(
                   transaction: tx,
@@ -117,31 +135,36 @@ class DashboardScreen extends StatelessWidget {
                   onView: () {
                     showDialog(
                       context: context,
-                      builder: (_) => AlertDialog(
-                        backgroundColor: isDark ? Colors.grey[900] : Colors.white,
-                        title: Text("Transaction Details",
-                            style: TextStyle(color: isDark ? Colors.white : Colors.black)),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Title: ${tx.title}"),
-                            Text("Amount: ₹${tx.amount}"),
-                            Text("Category: ${tx.category}"),
-                            Text("Type: ${tx.isIncome ? "Income" : "Expense"}"),
-                            Text("Date: ${tx.date}"),
-                          ],
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text("Close"),
+                      builder: (_) {
+                        return AlertDialog(
+                          backgroundColor: isDark ? Colors.grey[900] : Colors.white,
+                          title: Text(
+                            "Transaction Details",
+                            style: TextStyle(
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
                           ),
-                        ],
-                      ),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Title: ${tx.title}"),
+                              Text("Amount: ₹${tx.amount}"),
+                              Text("Category: ${tx.category}"),
+                              Text("Type: ${tx.isIncome ? "Income" : "Expense"}"),
+                              Text("Date: ${tx.date}"),
+                            ],
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text("Close"),
+                            ),
+                          ],
+                        );
+                      },
                     );
                   },
-
                   onEdit: () {
                     Navigator.pushNamed(
                       context,
@@ -149,7 +172,6 @@ class DashboardScreen extends StatelessWidget {
                       arguments: tx,
                     );
                   },
-
                   onDelete: () {
                     provider.deleteTransaction(tx.id);
                     ScaffoldMessenger.of(context).showSnackBar(

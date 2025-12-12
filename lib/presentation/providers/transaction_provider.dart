@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+import 'dart:io';
+import 'package:csv/csv.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:open_filex/open_filex.dart';
 import '../../domain/entities/transaction_entity.dart';
 import '../../domain/usecases/transaction_usecases.dart';
 import '../../data/repositories/transaction_repository_impl.dart';
@@ -20,6 +24,7 @@ class TransactionProvider extends ChangeNotifier {
 
   Future<void> addTransaction(
       String title, double amount, String category, bool income) async {
+
     final entity = TransactionEntity(
       id: const Uuid().v4(),
       title: title,
@@ -39,6 +44,7 @@ class TransactionProvider extends ChangeNotifier {
       double amount,
       String category,
       bool income) async {
+
     final updated = TransactionEntity(
       id: id,
       title: title,
@@ -63,13 +69,41 @@ class TransactionProvider extends ChangeNotifier {
 
   double get balance {
     double income = transactions
-        .where((e) => e.isIncome)
-        .fold(0, (s, e) => s + e.amount);
+        .where((t) => t.isIncome)
+        .fold(0, (sum, t) => sum + t.amount);
 
     double expense = transactions
-        .where((e) => !e.isIncome)
-        .fold(0, (s, e) => s + e.amount);
+        .where((t) => !t.isIncome)
+        .fold(0, (sum, t) => sum + t.amount);
 
     return income - expense;
+  }
+
+  Future<String> exportCSV() async {
+    List<List<dynamic>> rows = [
+      ["Title", "Amount", "Category", "Type", "Date"]
+    ];
+
+    for (var t in transactions) {
+      rows.add([
+        t.title,
+        t.amount,
+        t.category,
+        t.isIncome ? "Income" : "Expense",
+        t.date.toIso8601String(),
+      ]);
+    }
+
+    String csvData = const ListToCsvConverter().convert(rows);
+
+    final dir = await getApplicationDocumentsDirectory();
+    final path = "${dir.path}/transactions.csv";
+
+    final file = File(path);
+    await file.writeAsString(csvData);
+
+    await OpenFilex.open(path);
+
+    return path;
   }
 }
